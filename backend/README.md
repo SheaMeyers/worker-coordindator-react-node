@@ -1,1 +1,1 @@
-Run the backend using `npm run`
+Run the backend using `npm run server`
