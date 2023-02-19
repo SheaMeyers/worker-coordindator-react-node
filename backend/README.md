@@ -1,1 +1,1 @@
-Run the backend using `node index.js`
+Run the backend using `npm run`
