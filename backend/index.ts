@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from 'express'
 import path from "path"
 
 const app: Express = express()
-const port: number = 3000
+const port: number = 4000
 
 app.use(express.static(path.join(__dirname, "../../frontend/build")))
 

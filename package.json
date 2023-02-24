@@ -1,0 +1,12 @@
+{
+    "name": "worker-coordinator",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "app": "cd frontend; npm run build; cd ../backend; npm run build; npm run server"
+    },
+    "author": "",
+    "license": "ISC"
+  }
+  
