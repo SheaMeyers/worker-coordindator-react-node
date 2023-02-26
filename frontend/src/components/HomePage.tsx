@@ -1,6 +1,6 @@
 import Button from '@mui/material/Button';
 
-import './HomePage.css';
+import '../styles/HomePage.css';
 
 
 const HomePage = () => {
