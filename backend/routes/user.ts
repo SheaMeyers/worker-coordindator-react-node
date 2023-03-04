@@ -5,7 +5,7 @@ import { PrismaClient, User, Company } from '@prisma/client';
 const prisma = new PrismaClient()
 const userRouter: Router = express.Router();
 
-userRouter.post('/api/sign-up', async (req: Request, res: Response) => {
+userRouter.post('/sign-up', async (req: Request, res: Response) => {
 
     const { username, password, companyName } = req.body
 
