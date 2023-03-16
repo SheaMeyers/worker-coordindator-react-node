@@ -1,29 +1,33 @@
 import express, { Router, Request, Response } from 'express'
 import bcrypt from "bcrypt"
-import { PrismaClient, User, Company } from '@prisma/client';
+import { User, Company } from '@prisma/client';
+import prismaClient from '../prisma/client';
 
-const prisma = new PrismaClient()
 const userRouter: Router = express.Router();
 
 userRouter.post('/sign-up', async (req: Request, res: Response) => {
 
     const { username, password, companyName } = req.body
 
-    if (await prisma.user.findUnique({ where: { name: username } })) {
+    if (!username || !password || !companyName) {
+        return res.status(400).send('Invalid request body')
+    }
+
+    if (await prismaClient.user.findUnique({ where: { name: username } })) {
         return res.status(400).send(`User already exists with username ${username}`)
     }
 
-    if (await prisma.company.findUnique({ where: { name: companyName } })) {
+    if (await prismaClient.company.findUnique({ where: { name: companyName } })) {
         return res.status(400).send(`Company already exists with username ${companyName}`)
     }
 
     const encryptedPassword = await bcrypt.hash(password, 10)
 
-    const company: Company = await prisma.company.create({
+    const company: Company = await prismaClient.company.create({
         data: { name: companyName }
     })
 
-    const user: User = await prisma.user.create({
+    const user: User = await prismaClient.user.create({
         data: {
             name: username,
             password: encryptedPassword,
