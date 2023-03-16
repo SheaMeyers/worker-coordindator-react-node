@@ -1,4 +1,5 @@
 const request = require('supertest');
+import { Company } from "@prisma/client";
 import app from "../../app";
 import prismaClient from "../../prisma/client";
 
@@ -25,18 +26,18 @@ test('Test signup successful', async () => {
 })
 
 test('Test signup unsuccessful', async () => {
-    await request(app).post('/api/sign-up').send({
-        "username": "Shea",
-        "password": "Password1",
-        "companyName": "MyComp"
-    }).expect(201)
+    const company: Company = await prismaClient.company.create({
+        data: { name: "MyComp" }
+    })
 
-    const user = prismaClient.user.findUnique({
-        where: {
-            name: "Shea"
+    await prismaClient.user.create({
+        data: {
+            name: "Shea",
+            password: "FakeEncryptedPassword",
+            companyId: company.id,
+            isAdmin: true
         }
     })
-    expect(user).not.toBeNull()
 
     const response = await request(app).post('/api/sign-up').send({
         "username": "Shea",
