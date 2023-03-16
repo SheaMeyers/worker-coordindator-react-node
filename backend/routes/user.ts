@@ -13,8 +13,23 @@ userRouter.post('/sign-up', async (req: Request, res: Response) => {
         return res.status(400).send('Invalid request body')
     }
 
-    if (await prismaClient.user.findUnique({ where: { name: username } })) {
-        return res.status(400).send(`User already exists with username ${username}`)
+    const userExists = await prismaClient.user.findFirst({
+        where: {
+            AND: [
+                {
+                    name: username
+                },
+                {
+                    company: {
+                        name: companyName
+                    }
+                }
+            ],
+        },
+    })
+
+    if (userExists) {
+        return res.status(400).send(`User in company ${companyName} already exists with username ${username}`)
     }
 
     if (await prismaClient.company.findUnique({ where: { name: companyName } })) {

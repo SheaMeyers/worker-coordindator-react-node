@@ -1,5 +1,5 @@
 const request = require('supertest');
-import app from "../../index";
+import app from "../../app";
 import prismaClient from "../../prisma/client";
 
 afterEach(async () => {
@@ -20,4 +20,29 @@ test('Test signup successful', async () => {
         }
     })
     expect(user).not.toBeNull()
+    // Ensure password not stored in plain text
+    expect(user).not.toBe("Password1")
+})
+
+test('Test signup unsuccessful', async () => {
+    await request(app).post('/api/sign-up').send({
+        "username": "Shea",
+        "password": "Password1",
+        "companyName": "MyComp"
+    }).expect(201)
+
+    const user = prismaClient.user.findUnique({
+        where: {
+            name: "Shea"
+        }
+    })
+    expect(user).not.toBeNull()
+
+    const response = await request(app).post('/api/sign-up').send({
+        "username": "Shea",
+        "password": "Password1",
+        "companyName": "MyComp"
+    }).expect(400)
+
+    expect(response.text).toBe("User in company MyComp already exists with username Shea")
 })
