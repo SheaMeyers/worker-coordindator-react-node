@@ -15,6 +15,13 @@ test('Test signup successful', async () => {
         "companyName": "MyComp"
     }).expect(201)
 
+    const company = prismaClient.company.findUnique({
+        where: {
+            name: "MyComp"
+        }
+    })
+    expect(company).not.toBeNull()
+    
     const user = prismaClient.user.findUnique({
         where: {
             name: "Shea"
@@ -25,18 +32,9 @@ test('Test signup successful', async () => {
     expect(user).not.toBe("Password1")
 })
 
-test('Test signup unsuccessful', async () => {
-    const company: Company = await prismaClient.company.create({
+test('Test signup unsuccessful when company already exists', async () => {
+    await prismaClient.company.create({
         data: { name: "MyComp" }
-    })
-
-    await prismaClient.user.create({
-        data: {
-            name: "Shea",
-            password: "FakeEncryptedPassword",
-            companyId: company.id,
-            isAdmin: true
-        }
     })
 
     const response = await request(app).post('/api/sign-up').send({
@@ -45,5 +43,14 @@ test('Test signup unsuccessful', async () => {
         "companyName": "MyComp"
     }).expect(400)
 
-    expect(response.text).toBe("User in company MyComp already exists with username Shea")
+    expect(response.text).toBe("Company already exists with name MyComp")
+})
+
+test('Test signup unsuccessful with invalid request body', async () => {
+    const response = await request(app).post('/api/sign-up').send({
+        "username": "Shea",
+        "password": "Password1"
+    }).expect(400)
+
+    expect(response.text).toBe("Invalid request body")
 })
