@@ -8,9 +8,16 @@ afterEach(async () => {
 })
 
 test('Test signup successful', async () => {
-    const response = await request(app).post('/api/sign-up').send({
+    await request(app).post('/api/sign-up').send({
         "username": "Shea",
         "password": "Password1",
         "companyName": "MyComp"
     }).expect(201)
+
+    const user = prismaClient.user.findUnique({
+        where: {
+            name: "Shea"
+        }
+    })
+    expect(user).not.toBeNull()
 })
