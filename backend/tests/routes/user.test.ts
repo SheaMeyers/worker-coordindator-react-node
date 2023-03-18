@@ -1,5 +1,4 @@
 const request = require('supertest');
-import { Company } from "@prisma/client";
 import app from "../../app";
 import prismaClient from "../../prisma/client";
 
@@ -8,49 +7,51 @@ afterEach(async () => {
     await prismaClient.company.deleteMany({})
 })
 
-test('Test signup successful', async () => {
-    await request(app).post('/api/sign-up').send({
-        "username": "Shea",
-        "password": "Password1",
-        "companyName": "MyComp"
-    }).expect(201)
-
-    const company = prismaClient.company.findUnique({
-        where: {
-            name: "MyComp"
-        }
-    })
-    expect(company).not.toBeNull()
+describe('Sign Up Tests', () => {
+    test('Test signup successful', async () => {
+        await request(app).post('/api/sign-up').send({
+            "username": "Shea",
+            "password": "Password1",
+            "companyName": "MyComp"
+        }).expect(201)
     
-    const user = prismaClient.user.findUnique({
-        where: {
-            name: "Shea"
-        }
+        const company = prismaClient.company.findUnique({
+            where: {
+                name: "MyComp"
+            }
+        })
+        expect(company).not.toBeNull()
+        
+        const user = prismaClient.user.findFirst({
+            where: {
+                username: "Shea"
+            }
+        })
+        expect(user).not.toBeNull()
+        // Ensure password not stored in plain text
+        expect(user).not.toBe("Password1")
     })
-    expect(user).not.toBeNull()
-    // Ensure password not stored in plain text
-    expect(user).not.toBe("Password1")
-})
-
-test('Test signup unsuccessful when company already exists', async () => {
-    await prismaClient.company.create({
-        data: { name: "MyComp" }
+    
+    test('Test signup unsuccessful when company already exists', async () => {
+        await prismaClient.company.create({
+            data: { name: "MyComp" }
+        })
+    
+        const response = await request(app).post('/api/sign-up').send({
+            "username": "Shea",
+            "password": "Password1",
+            "companyName": "MyComp"
+        }).expect(400)
+    
+        expect(response.text).toBe("Company already exists with name MyComp")
     })
-
-    const response = await request(app).post('/api/sign-up').send({
-        "username": "Shea",
-        "password": "Password1",
-        "companyName": "MyComp"
-    }).expect(400)
-
-    expect(response.text).toBe("Company already exists with name MyComp")
-})
-
-test('Test signup unsuccessful with invalid request body', async () => {
-    const response = await request(app).post('/api/sign-up').send({
-        "username": "Shea",
-        "password": "Password1"
-    }).expect(400)
-
-    expect(response.text).toBe("Invalid request body")
+    
+    test('Test signup unsuccessful with invalid request body', async () => {
+        const response = await request(app).post('/api/sign-up').send({
+            "username": "Shea",
+            "password": "Password1"
+        }).expect(400)
+    
+        expect(response.text).toBe("Invalid request body")
+    })    
 })
