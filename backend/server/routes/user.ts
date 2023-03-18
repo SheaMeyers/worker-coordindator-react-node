@@ -1,7 +1,7 @@
 import express, { Router, Request, Response } from 'express'
 import bcrypt from "bcrypt"
 import { User, Company } from '@prisma/client'
-import prismaClient from '../prisma/client'
+import prismaClient from '../client';
 
 const userRouter: Router = express.Router();
 

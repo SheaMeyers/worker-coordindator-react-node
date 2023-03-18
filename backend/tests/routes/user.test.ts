@@ -1,6 +1,7 @@
 const request = require('supertest');
-import app from "../../app";
-import prismaClient from "../../prisma/client";
+import { describe, expect, test, afterEach } from '@jest/globals';
+import app from "../../server/app";
+import prismaClient from "../../server/client";
 
 afterEach(async () => {
 	await prismaClient.user.deleteMany({})
