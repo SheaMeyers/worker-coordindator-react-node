@@ -1,4 +1,4 @@
-const request = require('supertest');
+import request from "supertest";
 import { describe, expect, test, afterEach } from '@jest/globals';
 import app from "../../server/app";
 import prismaClient from "../../server/client";
