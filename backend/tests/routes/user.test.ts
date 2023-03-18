@@ -1,5 +1,6 @@
 import request from "supertest";
-import { describe, expect, test, afterEach } from '@jest/globals';
+import { describe, expect, test, afterEach, beforeEach } from '@jest/globals';
+import bcrypt from "bcrypt"
 import app from "../../server/app";
 import prismaClient from "../../server/client";
 
@@ -55,4 +56,29 @@ describe('Sign Up Tests', () => {
     
         expect(response.text).toBe("Invalid request body")
     })    
+})
+
+describe('Sign Up Tests', () => {
+    beforeEach(async () => {
+        const company = await prismaClient.company.create({
+            data: { name: "MyComp" }
+        })
+        const password = await bcrypt.hash("password", 10)
+        await prismaClient.user.create({
+            data: {
+                username: "Shea",
+                password: "Password",
+                companyId: company.id,
+                isAdmin: true
+            }
+        })
+    })
+
+    test('Test signup successful', async () => {
+        await request(app).post('/api/sign-in').send({
+            "companyName": "MyComp",
+            "username": "Shea",
+            "password": "password"
+        }).expect(400)
+    })
 })
