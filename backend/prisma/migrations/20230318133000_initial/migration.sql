@@ -13,7 +13,7 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "lastUpdated" TIMESTAMP(3) NOT NULL,
-    "name" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
     "isAdmin" BOOLEAN NOT NULL,
@@ -27,9 +27,6 @@ CREATE TABLE "User" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Company_name_key" ON "Company"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_name_key" ON "User"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_token_key" ON "User"("token");
