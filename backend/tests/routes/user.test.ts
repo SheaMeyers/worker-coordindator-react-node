@@ -67,17 +67,41 @@ describe('Sign Up Tests', () => {
         await prismaClient.user.create({
             data: {
                 username: "Shea",
-                password: "Password",
+                password,
                 companyId: company.id,
                 isAdmin: true
             }
         })
     })
 
-    test('Test signup successful', async () => {
+    test('Test signin successful', async () => {
         await request(app).post('/api/sign-in').send({
             "companyName": "MyComp",
             "username": "Shea",
+            "password": "password"
+        }).expect(200)
+    })
+
+    test('Test signin unsuccessful with bad password', async () => {
+        await request(app).post('/api/sign-in').send({
+            "companyName": "MyComp",
+            "username": "Shea",
+            "password": "badpassword"
+        }).expect(400)
+    })
+
+    test('Test signin unsuccessful with bad company name', async () => {
+        await request(app).post('/api/sign-in').send({
+            "companyName": "BadMyComp",
+            "username": "Shea",
+            "password": "password"
+        }).expect(400)
+    })
+
+    test('Test signin unsuccessful with bad username', async () => {
+        await request(app).post('/api/sign-in').send({
+            "companyName": "MyComp",
+            "username": "BadShea",
             "password": "password"
         }).expect(400)
     })
