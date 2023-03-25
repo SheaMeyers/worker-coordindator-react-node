@@ -7,7 +7,7 @@
     "build": "npx tsc",
     "server": "node dist/server/index.js",
     "backend": "npm run build; npm run server",
-    "test": "npx jest"
+    "test": "npm run build; npx jest"
   },
   "author": "",
   "license": "ISC",

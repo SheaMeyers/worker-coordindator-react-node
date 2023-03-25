@@ -33,7 +33,13 @@ userRouter.post('/sign-up', async (req: Request, res: Response) => {
         }
     })
 
-    res.status(201).send()
+    const [token, refreshToken] = getTokens()
+
+    updateUserTokens(user, token, refreshToken)
+
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions)
+
+    res.status(201).send({token, isAdmin: user.isAdmin})
 })
 
 userRouter.post('/sign-in', async (req: Request, res: Response) => {

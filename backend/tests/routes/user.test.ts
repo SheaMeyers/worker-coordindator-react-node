@@ -12,7 +12,7 @@ afterEach(async () => {
 
 describe('Sign Up Tests', () => {
     test('Test signup successful', async () => {
-        await request(app).post('/api/sign-up').send({
+        const response = await request(app).post('/api/sign-up').send({
             "username": "Shea",
             "password": "Password1",
             "companyName": "MyComp"
@@ -25,14 +25,16 @@ describe('Sign Up Tests', () => {
         })
         expect(company).not.toBeNull()
         
-        const user = prismaClient.user.findFirst({
+        const user: User | null = await prismaClient.user.findFirst({
             where: {
                 username: "Shea"
             }
         })
         expect(user).not.toBeNull()
         // Ensure password not stored in plain text
-        expect(user).not.toBe("Password1")
+        expect(user?.password).not.toBe("Password1")
+        expect(response.body.token).toBe(user?.token)
+        expect(response.body.isAdmin).toBeTruthy()
     })
     
     test('Test signup unsuccessful when company already exists', async () => {
