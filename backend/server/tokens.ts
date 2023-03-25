@@ -1,5 +1,14 @@
 import { v4 as uuidv4 } from "uuid"
 import jwt from "jsonwebtoken"
+import { User } from '@prisma/client'
+import prismaClient from "./client"
+
+export const refreshCookieOptions = {
+	maxAge: 1000 * 60 * 60 * 24 * 30, //expires in a month
+	// httpOnly: true, // cookie is only accessible by the server
+	// secure: process.env.NODE_ENV === 'prod', // only transferred over https
+	// sameSite: true, // only sent for requests to the same FQDN as the domain in the cookie
+}
 
 export const getTokens = (): [string, string] => {
 	if (process.env.ACCESS_SECRET === undefined || process.env.REFRESH_SECRET === undefined) {
@@ -20,3 +29,24 @@ export const getTokens = (): [string, string] => {
 
 	return [token, refreshToken]
 }
+
+export const updateUserTokens = async (
+	user: User,
+	token: string,
+	refreshToken: string
+) =>  await prismaClient.user.update({
+		where: {
+			id: user.id
+		},
+		data: {
+			token,
+			refreshToken,
+			oldTokens: [user.token || '', ...user.oldTokens]
+				.filter((e) => e)
+				.slice(0, 20),
+			oldRefreshTokens: [user.refreshToken || '', ...user.oldRefreshTokens]
+				.filter((e) => e)
+				.slice(0, 20),
+		},
+	})
+

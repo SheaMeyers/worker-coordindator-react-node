@@ -2,6 +2,7 @@ import express, { Router, Request, Response } from 'express'
 import bcrypt from "bcrypt"
 import { User, Company } from '@prisma/client'
 import prismaClient from '../client';
+import { getTokens, updateUserTokens, refreshCookieOptions } from '../tokens';
 
 const userRouter: Router = express.Router();
 
@@ -64,7 +65,13 @@ userRouter.post('/sign-in', async (req: Request, res: Response) => {
     const isValidPassword = await bcrypt.compare(password, user.password)
 	if (!isValidPassword) return res.status(400).send('Invalid username or password')
 
-    res.status(200).send()
+    const [token, refreshToken] = getTokens()
+
+    updateUserTokens(user, token, refreshToken)
+
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions)
+
+    res.status(200).send({token, isAdmin: user.isAdmin})
 })
 
-export default userRouter;
+export default userRouter
