@@ -3,6 +3,7 @@ import { describe, expect, test, afterEach, beforeEach } from '@jest/globals';
 import bcrypt from "bcrypt"
 import app from "../../server/app";
 import prismaClient from "../../server/client";
+import { User } from "@prisma/client";
 
 afterEach(async () => {
 	await prismaClient.user.deleteMany({})
@@ -58,7 +59,7 @@ describe('Sign Up Tests', () => {
     })    
 })
 
-describe('Sign Up Tests', () => {
+describe('Sign In Tests', () => {
     beforeEach(async () => {
         const company = await prismaClient.company.create({
             data: { name: "MyComp" }
@@ -75,11 +76,31 @@ describe('Sign Up Tests', () => {
     })
 
     test('Test signin successful', async () => {
-        await request(app).post('/api/sign-in').send({
+        const response = await request(app).post('/api/sign-in').send({
             "companyName": "MyComp",
             "username": "Shea",
             "password": "password"
         }).expect(200)
+
+        expect(response.body.isAdmin).toBeTruthy()
+
+        const user: User | null = await prismaClient.user.findFirst({
+            where: {
+                AND: [
+                    {
+                        company: {
+                            name: "MyComp"
+                        }
+                    },
+                    {
+                        username: "Shea"
+                    }
+                ]
+            }
+        })
+
+        expect(user).not.toBeNull()
+        expect(response.body.token).toBe(user?.token)
     })
 
     test('Test signin unsuccessful with bad password', async () => {
