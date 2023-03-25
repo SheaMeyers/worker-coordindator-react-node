@@ -64,12 +64,11 @@ userRouter.post('/sign-in', async (req: Request, res: Response) => {
         }
     })
 
-    if (user == null) {
-        return res.status(400).send('Invalid username or password')
-    }
+    if (user == null)
+        return res.status(401).send('Invalid company name, username or password')
 
     const isValidPassword = await bcrypt.compare(password, user.password)
-	if (!isValidPassword) return res.status(400).send('Invalid username or password')
+	if (!isValidPassword) return res.status(401).send('Invalid company name, username or password')
 
     const [token, refreshToken] = getTokens()
 

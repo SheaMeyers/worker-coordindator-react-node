@@ -110,7 +110,7 @@ describe('Sign In Tests', () => {
             "companyName": "MyComp",
             "username": "Shea",
             "password": "badpassword"
-        }).expect(400)
+        }).expect(401)
     })
 
     test('Test signin unsuccessful with bad company name', async () => {
@@ -118,7 +118,7 @@ describe('Sign In Tests', () => {
             "companyName": "BadMyComp",
             "username": "Shea",
             "password": "password"
-        }).expect(400)
+        }).expect(401)
     })
 
     test('Test signin unsuccessful with bad username', async () => {
@@ -126,6 +126,6 @@ describe('Sign In Tests', () => {
             "companyName": "MyComp",
             "username": "BadShea",
             "password": "password"
-        }).expect(400)
+        }).expect(401)
     })
 })

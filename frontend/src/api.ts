@@ -7,12 +7,18 @@ export const signIn = async (companyName: string, username: string, password: st
         body: JSON.stringify({ companyName, username, password })
     })
 
-    const result = await response.json()
+    if (!response.ok) {
+        if (response.status === 401)
+            return { success: false, error: "Invalid company name, username, or password"} as AuthedResponse
+        
+        return { success: false, error: "Unable to login.  Please try again later."} as AuthedResponse
+    }
 
-    console.log(response)
-    
+    const { isAdmin, token} = await response.json()
+
     return {
-        isAdmin: result.isAdmin,
-        token: result.token
+        success: true,
+        isAdmin,
+        token
     } as AuthedResponse
 }

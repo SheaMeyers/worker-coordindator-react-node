@@ -8,11 +8,22 @@ const SignIn = () => {
   const [companyName, setCompanyName] = useState<string>('')
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [feedback, setFeedback] = useState<string>('')
 
   const signIn = async () => {
+    setFeedback('loading')
     const result: AuthedResponse = await apiSignIn(companyName, username, password)
 
-    console.log(result)
+    if(!result.success){
+      setFeedback(result.error)
+      return
+    }
+
+    setFeedback('success')
+    console.log('isAdmin')
+    console.log(result.isAdmin)
+    console.log('token')
+    console.log(result.token)
   }
 
   return (
@@ -35,6 +46,9 @@ const SignIn = () => {
           onChange={event => setPassword(event.target.value)}
           value={password}
         />
+        {feedback && 
+          <p>{feedback}</p>
+        }
         <Button 
           variant="contained" 
           className="Button"
