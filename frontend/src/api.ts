@@ -1,7 +1,9 @@
 import { AuthedResponse } from "./interfaces"
 
-export const signIn = async (companyName: string, username: string, password: string): Promise<AuthedResponse> => {
-    const response = await fetch('/api/sign-in', {
+
+
+export const getAuthed = async (url: string, companyName: string, username: string, password: string): Promise<AuthedResponse> => {
+    const response = await fetch(url, {
         method: 'POST',
         headers: new Headers({ "Content-Type": "application/json"}),
         body: JSON.stringify({ companyName, username, password })
@@ -22,3 +24,9 @@ export const signIn = async (companyName: string, username: string, password: st
         token
     } as AuthedResponse
 }
+
+export const signIn = async (companyName: string, username: string, password: string): Promise<AuthedResponse> =>
+    getAuthed('/api/sign-in', companyName, username, password)
+
+export const signUp = async (companyName: string, username: string, password: string): Promise<AuthedResponse> =>
+    getAuthed('/api/sign-up', companyName, username, password)

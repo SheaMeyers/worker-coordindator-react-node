@@ -1,8 +1,8 @@
-import { useState } from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
+import { useState } from "react"
+import Button from "@mui/material/Button"
+import TextField from "@mui/material/TextField"
 import { signIn as apiSignIn } from "../api"
-import { AuthedResponse } from "../interfaces";
+import { AuthedResponse } from "../interfaces"
 
 const SignIn = () => {
   const [companyName, setCompanyName] = useState<string>('')
@@ -46,9 +46,7 @@ const SignIn = () => {
           onChange={event => setPassword(event.target.value)}
           value={password}
         />
-        {feedback && 
-          <p>{feedback}</p>
-        }
+        {feedback && <p>{feedback}</p>}
         <Button 
           variant="contained" 
           className="Button"
@@ -57,7 +55,7 @@ const SignIn = () => {
           Sign In
         </Button>
     </div>
-  );
-};
+  )
+}
 
-export default SignIn;
+export default SignIn
