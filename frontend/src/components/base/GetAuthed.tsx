@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from "react-router-dom"
 import Button from '@mui/material/Button'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
 import { AuthedResponse } from "../../interfaces"
+import '../../styles/GetAuthed.css'
 
 
 type GetAuthedProps = {
@@ -19,7 +22,7 @@ const GetAuthed = (props: GetAuthedProps) => {
   const [feedback, setFeedback] = useState<string>('')
 
   const signUp = async () => {
-    setFeedback('loading')
+    setFeedback('loading...')
     const result: AuthedResponse = await props.authFunction(companyName, username, password)
 
     if(!result.success){
@@ -27,45 +30,48 @@ const GetAuthed = (props: GetAuthedProps) => {
       return
     }
 
-    setFeedback('success')
-    console.log('isAdmin')
-    console.log(result.isAdmin)
     localStorage.setItem('isAdmin', result.isAdmin.toString())
-    console.log('token')
-    console.log(result.token)
     localStorage.setItem('token', result.token)
     navigate('/')
   }
   
   return (
-    <div className="SignUp">
-        <TextField 
-          label="Company Name" 
-          variant="outlined" 
-          onChange={event => setCompanyName(event.target.value)}
-          value={companyName}
-        />
-        <TextField 
-          label="Username" 
-          variant="outlined" 
-          onChange={event => setUsername(event.target.value)}
-          value={username}
-        />
-        <TextField 
-          label="Password" 
-          variant="outlined" 
-          onChange={event => setPassword(event.target.value)}
-          value={password}
-        />
-        {feedback && <p>{feedback}</p>}
-        <Button 
-          variant="contained" 
-          className="Button"
-          onClick={async () => await signUp()}
-        >
-          {props.buttonText}
-        </Button>
-    </div>
+    <Card>
+      <CardContent>
+        <div className='GetAuthed'>
+          <TextField 
+            required
+            label="Company Name" 
+            variant="outlined"
+            onChange={event => setCompanyName(event.target.value)}
+            value={companyName}
+          />
+          <TextField 
+            required
+            label="Username" 
+            variant="outlined" 
+            onChange={event => setUsername(event.target.value)}
+            value={username}
+          />
+          <TextField 
+            required 
+            label="Password" 
+            variant="outlined" 
+            type='password'
+            onChange={event => setPassword(event.target.value)}
+            value={password}
+          />
+          {feedback && <p>{feedback}</p>}
+          <Button 
+            variant="contained" 
+            className="Button"
+            onClick={async () => await signUp()}
+          >
+            {props.buttonText}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

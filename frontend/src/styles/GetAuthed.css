@@ -1,0 +1,8 @@
+.GetAuthed {
+    display: flex;
+    flex-direction: column;
+}
+
+.MuiTextField-root {
+    margin: 2vh 0 !important;
+}
