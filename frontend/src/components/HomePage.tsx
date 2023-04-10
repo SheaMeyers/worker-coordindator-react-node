@@ -1,23 +1,21 @@
-import Button from '@mui/material/Button';
-import { useNavigate } from "react-router-dom";
+import WorkerHome from './base/WorkerHome';
+import AdminHome from './base/AdminHome';
+import NotAuthedHome from './base/NotAuthedHome';
 import '../styles/HomePage.css';
 
 
 const HomePage = () => {
-  const navigate = useNavigate();
+  const isAdmin = localStorage.getItem('isAdmin')
+  const token = localStorage.getItem('token')
 
   return (
-    <div className='HomePage'>
-      <p>Is Admin: {localStorage.getItem('isAdmin')}</p>
-      <p>Token: {localStorage.getItem('token')}</p>
-      <div className='ButtonContainer'>
-        <Button variant='contained' className='Button' onClick={_ => navigate('/sign-in')}>Sign In</Button>
-        <Button variant='contained' className='Button' onClick={_ => navigate('/sign-up')}>Sign Up</Button>
-      </div>
-      <h1>
-        Worker Coordinator
-      </h1>
-    </div>
+    token ?
+      isAdmin === 'true' ?
+        <AdminHome />
+      :
+        <WorkerHome />
+    :
+    <NotAuthedHome />
   );
 }
 
