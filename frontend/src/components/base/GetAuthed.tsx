@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useNavigate } from "react-router-dom"
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import { AuthedResponse } from "../../interfaces"
+
 
 type GetAuthedProps = {
     authFunction: (arg0: string, arg1: string, arg2: string) => Promise<AuthedResponse>
@@ -10,6 +12,7 @@ type GetAuthedProps = {
 
 
 const GetAuthed = (props: GetAuthedProps) => {
+  const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string>('')
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
@@ -27,8 +30,11 @@ const GetAuthed = (props: GetAuthedProps) => {
     setFeedback('success')
     console.log('isAdmin')
     console.log(result.isAdmin)
+    localStorage.setItem('isAdmin', result.isAdmin.toString())
     console.log('token')
     console.log(result.token)
+    localStorage.setItem('token', result.token)
+    navigate('/')
   }
   
   return (

@@ -8,6 +8,8 @@ const HomePage = () => {
 
   return (
     <div className='HomePage'>
+      <p>Is Admin: {localStorage.getItem('isAdmin')}</p>
+      <p>Token: {localStorage.getItem('token')}</p>
       <div className='ButtonContainer'>
         <Button variant='contained' className='Button' onClick={_ => navigate('/sign-in')}>Sign In</Button>
         <Button variant='contained' className='Button' onClick={_ => navigate('/sign-up')}>Sign Up</Button>
