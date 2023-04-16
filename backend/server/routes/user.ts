@@ -2,7 +2,7 @@ import express, { Router, Request, Response } from 'express'
 import bcrypt from "bcrypt"
 import { User, Company } from '@prisma/client'
 import prismaClient from '../client';
-import { getTokens, updateUserTokens, refreshCookieOptions } from '../tokens';
+import { getTokens, updateUserTokens, refreshCookieOptions, removeUserTokens } from '../tokens';
 
 const userRouter: Router = express.Router();
 
@@ -77,6 +77,16 @@ userRouter.post('/sign-in', async (req: Request, res: Response) => {
     res.cookie("refreshToken", refreshToken, refreshCookieOptions)
 
     res.status(200).send({token, isAdmin: user.isAdmin})
+})
+
+userRouter.post('/logout', async (req: Request, res: Response) => {
+    const { token } = req.body
+
+    removeUserTokens(token)
+
+    res.clearCookie("refreshToken")
+
+    res.status(200)
 })
 
 export default userRouter
