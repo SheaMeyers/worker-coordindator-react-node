@@ -50,3 +50,28 @@ export const updateUserTokens = async (
 		},
 	})
 
+export const removeUserTokens = async (token: string = '', refreshToken: string = '') => {
+	if (token === '' && refreshToken === '') {
+		throw new Error('Either token or refresh token must be provided')
+	}
+	let user: User | null;
+	if (token) {	
+		user = await prismaClient.user.findFirst({ where : { token }})
+	} else {
+		user = await prismaClient.user.findFirst({ where : { refreshToken }})
+	}
+
+	if (user) {
+		await prismaClient.user.update({
+			where: {
+				id: user.id
+			},
+			data: {
+				token: null,
+				refreshToken: null,
+				oldTokens: [],
+				oldRefreshTokens: [],
+			},
+		})
+	}
+}
