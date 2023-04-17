@@ -31,3 +31,12 @@ export const signIn = async (companyName: string, username: string, password: st
 
 export const signUp = async (companyName: string, username: string, password: string): Promise<AuthedResponse> =>
     getAuthed('/api/sign-up', companyName, username, password)
+
+export const logOut = async (): Promise<void> => {
+    const token = localStorage.getItem('token')
+    await fetch('/api/logout', {
+        method: 'POST',
+        headers: new Headers({ "Content-Type": "application/json"}),
+        body: JSON.stringify({ token })
+    })
+}

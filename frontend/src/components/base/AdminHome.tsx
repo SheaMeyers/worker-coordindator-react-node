@@ -1,10 +1,11 @@
-import '../../styles/HomePage.css';
+import LogoutButton from "./LogoutButton";
+import "../../styles/HomePage.css";
 
-
-const AdminHome = () => {
-  return (
+const AdminHome = () => (
+  <>
+    <LogoutButton />
     <h1>Admin Homepage</h1>
-  );
-}
+  </>
+);
 
 export default AdminHome;

@@ -30,6 +30,7 @@ const GetAuthed = (props: GetAuthedProps) => {
       return
     }
 
+    // TODO: Do this in api method??
     localStorage.setItem('isAdmin', result.isAdmin.toString())
     localStorage.setItem('token', result.token)
     navigate('/')
