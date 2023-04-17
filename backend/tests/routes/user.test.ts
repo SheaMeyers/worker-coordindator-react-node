@@ -129,3 +129,51 @@ describe('Sign In Tests', () => {
         }).expect(401)
     })
 })
+
+describe('Log Out Tests', () => {
+    beforeEach(async () => {
+        const company = await prismaClient.company.create({
+            data: { name: "MyComp" }
+        })
+        const password = await bcrypt.hash("password", 10)
+        await prismaClient.user.create({
+            data: {
+                username: "Shea",
+                password,
+                companyId: company.id,
+                isAdmin: true,
+                token: 'fakeToken',
+                refreshToken: 'fakeRefreshToken',
+                oldTokens: ['oldFakeToken'],
+                oldRefreshTokens: ['oldFakeRefreshToken'],
+            }
+        })
+    })
+
+    test('Logout successful', async () => {
+        await request(app).post('/api/logout').send({
+            "token": "fakeToken"
+        }).expect(200)
+
+        const user: User | null = await prismaClient.user.findFirst({
+            where: {
+                AND: [
+                    {
+                        company: {
+                            name: "MyComp"
+                        }
+                    },
+                    {
+                        username: "Shea"
+                    }
+                ]
+            }
+        })
+
+        expect(user).not.toBeNull()
+        expect(user?.token).toBe(null)
+        expect(user?.refreshToken).toBe(null)
+        expect(user?.oldTokens).toStrictEqual([])
+        expect(user?.oldRefreshTokens).toStrictEqual([])
+    })
+})

@@ -82,11 +82,11 @@ userRouter.post('/sign-in', async (req: Request, res: Response) => {
 userRouter.post('/logout', async (req: Request, res: Response) => {
     const { token } = req.body
 
-    removeUserTokens(token)
+    await removeUserTokens(token)
 
     res.clearCookie("refreshToken")
 
-    res.status(200)
+    res.status(200).send()
 })
 
 export default userRouter
