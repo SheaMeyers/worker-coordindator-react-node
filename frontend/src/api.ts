@@ -55,3 +55,16 @@ export const addUser = async (username: string, password: string, isAdmin: boole
     })
     return response.ok
 }
+
+export const addMessage = async (content: string): Promise<boolean> => {
+    const token = localStorage.getItem('token')
+    const response = await fetch('/api/add-message', {
+        method: 'POST',
+        headers: new Headers({ 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }),
+        body: JSON.stringify({ content })
+    })
+    return response.ok
+}
