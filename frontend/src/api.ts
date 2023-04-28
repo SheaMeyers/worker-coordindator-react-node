@@ -42,3 +42,16 @@ export const logOut = async (): Promise<void> => {
         }),
     })
 }
+
+export const addUser = async (username: string, password: string, isAdmin: boolean): Promise<boolean> => {
+    const token = localStorage.getItem('token')
+    const response = await fetch('/api/add-user', {
+        method: 'POST',
+        headers: new Headers({ 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }),
+        body: JSON.stringify({ username, password, isAdmin })
+    })
+    return response.ok
+}
