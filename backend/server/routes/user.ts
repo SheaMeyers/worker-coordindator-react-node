@@ -2,7 +2,7 @@ import express, { Router, Request, Response } from 'express'
 import bcrypt from "bcrypt"
 import { User, Company } from '@prisma/client'
 import prismaClient from '../client';
-import { getTokens, updateUserTokens, refreshCookieOptions, removeUserTokens } from '../tokens';
+import { getTokens, updateUserTokens, refreshCookieOptions, removeUserTokens, getTokenFromAuthorizationHeader, getUserByToken } from '../tokens';
 
 const userRouter: Router = express.Router();
 
@@ -80,13 +80,42 @@ userRouter.post('/sign-in', async (req: Request, res: Response) => {
 })
 
 userRouter.post('/logout', async (req: Request, res: Response) => {
-    const { token } = req.body
+    const token  = getTokenFromAuthorizationHeader(req.headers.authorization)
 
-    await removeUserTokens(token)
+    try {
+        await removeUserTokens(token)
+    } catch {}
 
     res.clearCookie("refreshToken")
 
     res.status(200).send()
+})
+
+userRouter.post('/add-user', async (req: Request, res: Response) => {
+    const token  = getTokenFromAuthorizationHeader(req.headers.authorization)
+
+    const user = await getUserByToken(token)
+
+    if (!user) return res.status(403).send()
+
+    const { username, password, isAdmin } = req.body
+
+    if (!username || !password ) {
+        return res.status(400).send('Invalid request body')
+    }
+
+    const encryptedPassword = await bcrypt.hash(password, 10)
+
+    await prismaClient.user.create({
+        data: {
+            username,
+            password: encryptedPassword,
+            isAdmin,
+            companyId: user.companyId
+        }
+    })
+
+    res.status(201).send()
 })
 
 export default userRouter

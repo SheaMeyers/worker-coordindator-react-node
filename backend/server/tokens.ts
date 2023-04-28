@@ -10,6 +10,14 @@ export const refreshCookieOptions = {
 	// sameSite: true, // only sent for requests to the same FQDN as the domain in the cookie
 }
 
+export const getTokenFromAuthorizationHeader = (authorization: string | undefined): string | undefined => {
+	if (!authorization) return
+	
+	const [_, token] = authorization.split(' ')
+
+	return token
+}
+
 export const getTokens = (): [string, string] => {
 	if (process.env.ACCESS_SECRET === undefined || process.env.REFRESH_SECRET === undefined) {
 		throw new Error("Secrets are undefined")
