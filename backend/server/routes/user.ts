@@ -118,4 +118,25 @@ userRouter.post('/add-user', async (req: Request, res: Response) => {
     res.status(201).send()
 })
 
+userRouter.post('/add-message', async (req: Request, res: Response) => {
+    const token  = getTokenFromAuthorizationHeader(req.headers.authorization)
+
+    const user = await getUserByToken(token)
+
+    if (!user) return res.status(403).send()
+
+    const { content } = req.body
+
+    if (!content) return res.status(400).send('Invalid request body')
+
+    await prismaClient.message.create({
+        data: {
+            userId: user.id,
+            content
+        }
+    })
+
+    res.status(201).send()
+})
+
 export default userRouter
