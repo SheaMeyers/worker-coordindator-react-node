@@ -6,3 +6,10 @@ export type AuthedResponse = {
     success: false
     error: string
 }
+
+export type UsersWithMessages = { 
+    username: string; 
+    Message: { 
+        content: string; 
+    }[]; 
+}[]

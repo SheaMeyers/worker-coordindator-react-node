@@ -1,4 +1,4 @@
-import { AuthedResponse } from "./interfaces"
+import { AuthedResponse, UsersWithMessages } from "./interfaces"
 
 
 export const getAuthed = async (url: string, companyName: string, username: string, password: string): Promise<AuthedResponse> => {
@@ -67,4 +67,21 @@ export const addMessage = async (content: string): Promise<boolean> => {
         body: JSON.stringify({ content })
     })
     return response.ok
+}
+
+
+
+export const getUsersWithMessages = async (): Promise<UsersWithMessages> => {
+    const token = localStorage.getItem('token')
+    const response = await fetch('/api/get-users-and-messages', {
+        method: 'GET',
+        headers: new Headers({ 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        })
+    })
+
+    const res =  response.json()
+    debugger
+    return res
 }
