@@ -139,4 +139,33 @@ userRouter.post('/add-message', async (req: Request, res: Response) => {
     res.status(201).send()
 })
 
+userRouter.post('/get-users-and-messages', async (req: Request, res: Response) => {
+    const token  = getTokenFromAuthorizationHeader(req.headers.authorization)
+
+    const user = await getUserByToken(token)
+
+    if (!user) return res.status(403).send()
+
+    const usersWithMessages: { username: string; Message: { content: string; }[]; }[] = await prismaClient.user.findMany({
+        where: {
+            companyId: user.companyId
+        },
+        select: {
+            username: true,
+            Message: {
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                select: {
+                    content: true
+                },
+                take: 3
+            },
+
+        }
+    })
+
+    res.status(200).send(usersWithMessages)
+})
+
 export default userRouter
