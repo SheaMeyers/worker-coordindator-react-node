@@ -144,7 +144,7 @@ userRouter.post('/get-users-and-messages', async (req: Request, res: Response) =
 
     const user = await getUserByToken(token)
 
-    if (!user) return res.status(403).send()
+    if (!user || !user.isAdmin) return res.status(403).send()
 
     const usersWithMessages: { username: string; Message: { content: string; }[]; }[] = await prismaClient.user.findMany({
         where: {
