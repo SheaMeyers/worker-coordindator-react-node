@@ -22,7 +22,6 @@ const AddWorkerModal = (props: AddWorkerModalProps) => {
 	const [password, setPassword] = useState<string>("")
 	const [isAdmin, setIsAdmin] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(false)
-    const [isError, setError] = useState<boolean>(false)
 
     return (
         <Dialog open={isOpen} onClose={() => handleClose()}>
@@ -60,8 +59,7 @@ const AddWorkerModal = (props: AddWorkerModalProps) => {
                     } 
                     label="Is Admin" 
                 />
-				{loading && <p>Changing password...</p>}
-				{isError && <p>Error adding worker. Please try again later.</p>}
+				{loading && <p>Adding worker...</p>}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={() => props.handleClose()}>Cancel</Button>
@@ -69,9 +67,9 @@ const AddWorkerModal = (props: AddWorkerModalProps) => {
 					disabled={loading || !username || !password}
 					onClick={async () => {
 						setLoading(true)
-                        const isOkay = await addUser(username, password, isAdmin)
-                        setError(!isOkay)
+                        await addUser(username, password, isAdmin)
                         setLoading(false)
+						window.location.reload()
 					}}
 				>
 					Add User

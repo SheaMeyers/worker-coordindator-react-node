@@ -3,11 +3,7 @@ import { logOut } from "../../api";
 
 const LogoutButton = () => (
   <Button
-    onClick={(_) => {
-      logOut();
-      localStorage.removeItem("token");
-      window.location.reload();
-    }}
+    onClick={(_) => logOut()}
   >
     Logout
   </Button>

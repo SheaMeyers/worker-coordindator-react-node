@@ -4,7 +4,7 @@ import { User, Company } from "@prisma/client";
 import prismaClient from "../client";
 import {
   getTokens,
-  updateUserTokens,
+  setNewUserTokens,
   refreshCookieOptions,
   removeUserTokens,
   getTokenFromAuthorizationHeader,
@@ -43,7 +43,7 @@ userRouter.post("/sign-up", async (req: Request, res: Response) => {
 
   const [token, refreshToken] = getTokens();
 
-  updateUserTokens(user, token, refreshToken);
+  await setNewUserTokens(user, token, refreshToken);
 
   res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 
@@ -81,7 +81,7 @@ userRouter.post("/sign-in", async (req: Request, res: Response) => {
 
   const [token, refreshToken] = getTokens();
 
-  updateUserTokens(user, token, refreshToken);
+  await setNewUserTokens(user, token, refreshToken);
 
   res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 
@@ -99,9 +99,9 @@ userRouter.post("/logout", async (req: Request, res: Response) => {
 });
 
 userRouter.post("/add-user", async (req: Request, res: Response) => {
-  const token = getTokenFromAuthorizationHeader(req.headers.authorization);
+  const currentToken = getTokenFromAuthorizationHeader(req.headers.authorization);
 
-  const user = await getUserByToken(token, req.cookies["refreshToken"]);
+  const user = await getUserByToken(currentToken, req.cookies["refreshToken"]);
 
   if (!user || !user.isAdmin) {
     res.clearCookie("refreshToken");
@@ -125,13 +125,19 @@ userRouter.post("/add-user", async (req: Request, res: Response) => {
     },
   });
 
-  res.status(201).send();
+  const [token, refreshToken] = getTokens();
+
+  await setNewUserTokens(user, token, refreshToken);
+
+  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+
+  res.status(201).send({ token });
 });
 
 userRouter.post("/add-message", async (req: Request, res: Response) => {
-  const token = getTokenFromAuthorizationHeader(req.headers.authorization);
+  const currentToken = getTokenFromAuthorizationHeader(req.headers.authorization);
 
-  const user = await getUserByToken(token, req.cookies["refreshToken"]);
+  const user = await getUserByToken(currentToken, req.cookies["refreshToken"]);
 
   if (!user || user.isAdmin) {
     res.clearCookie("refreshToken");
@@ -149,15 +155,21 @@ userRouter.post("/add-message", async (req: Request, res: Response) => {
     },
   });
 
-  res.status(201).send();
+  const [token, refreshToken] = getTokens();
+
+  await setNewUserTokens(user, token, refreshToken);
+
+  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+
+  res.status(201).send({ token });
 });
 
 userRouter.get(
   "/get-users-and-messages",
   async (req: Request, res: Response) => {
-    const token = getTokenFromAuthorizationHeader(req.headers.authorization);
+    const currentToken = getTokenFromAuthorizationHeader(req.headers.authorization);
 
-    const user = await getUserByToken(token, req.cookies["refreshToken"]);
+    const user = await getUserByToken(currentToken, req.cookies["refreshToken"]);
 
     if (!user || !user.isAdmin) {
       res.clearCookie("refreshToken");
@@ -186,7 +198,13 @@ userRouter.get(
       },
     });
 
-    res.status(200).send(usersWithMessages);
+    const [token, refreshToken] = getTokens();
+
+    await setNewUserTokens(user, token, refreshToken);
+
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+
+    res.status(200).send({ token, usersWithMessages });
   }
 );
 

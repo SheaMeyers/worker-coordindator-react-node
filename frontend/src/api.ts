@@ -15,12 +15,13 @@ export const getAuthed = async (url: string, companyName: string, username: stri
         return { success: false, error: "Unable to login.  Please try again later."} as AuthedResponse
     }
 
-    const { isAdmin, token} = await response.json()
+    const { isAdmin, token } = await response.json()
+
+    localStorage.setItem('isAdmin', isAdmin.toString())
+    localStorage.setItem('token', token)
 
     return {
-        success: true,
-        isAdmin,
-        token
+        success: true
     } as AuthedResponse
 }
 
@@ -41,9 +42,11 @@ export const logOut = async (): Promise<void> => {
             "Authorization": `Bearer ${token}`
         }),
     })
+    localStorage.removeItem("token");
+    window.location.reload();
 }
 
-export const addUser = async (username: string, password: string, isAdmin: boolean): Promise<boolean> => {
+export const addUser = async (username: string, password: string, isAdmin: boolean): Promise<void> => {
     const token = localStorage.getItem('token')
     const response = await fetch('/api/add-user', {
         method: 'POST',
@@ -53,10 +56,16 @@ export const addUser = async (username: string, password: string, isAdmin: boole
         }),
         body: JSON.stringify({ username, password, isAdmin })
     })
-    return response.ok
+    if (!response.ok) {
+        localStorage.removeItem("token")
+        window.location.replace('/')
+    } else {
+        const { token } = await response.json()
+        localStorage.setItem('token', token)
+    }
 }
 
-export const addMessage = async (content: string): Promise<boolean> => {
+export const addMessage = async (content: string): Promise<void> => {
     const token = localStorage.getItem('token')
     const response = await fetch('/api/add-message', {
         method: 'POST',
@@ -66,7 +75,13 @@ export const addMessage = async (content: string): Promise<boolean> => {
         }),
         body: JSON.stringify({ content })
     })
-    return response.ok
+    if (!response.ok) {
+        localStorage.removeItem("token")
+        window.location.replace('/')
+    } else {
+        const { token } = await response.json()
+        localStorage.setItem('token', token)
+    }
 }
 
 
@@ -81,7 +96,13 @@ export const getUsersWithMessages = async (): Promise<UsersWithMessages> => {
         })
     })
 
-    const res =  response.json()
-    debugger
-    return res
+    if (!response.ok) {
+        localStorage.removeItem("token")
+        window.location.replace('/')
+        return []
+    } else {
+        const { token, usersWithMessages } = await response.json()
+        localStorage.setItem('token', token)
+        return usersWithMessages
+    }
 }

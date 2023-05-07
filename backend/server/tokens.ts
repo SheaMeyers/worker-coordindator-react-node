@@ -38,7 +38,7 @@ export const getTokens = (): [string, string] => {
 	return [token, refreshToken]
 }
 
-export const updateUserTokens = async (
+export const setNewUserTokens = async (
 	user: User,
 	token: string,
 	refreshToken: string
@@ -85,9 +85,9 @@ export const getUserByToken = async (token: string, refreshToken: string): Promi
 
 	if (user && (
 			user.token !== token || 
-			user.refreshToken != refreshToken || 
-			(process.env.ACCESS_SECRET && !jwt.verify(token, process.env.ACCESS_SECRET)) ||
-			(process.env.REFRESH_SECRET && !jwt.verify(token, process.env.REFRESH_SECRET))
+			user.refreshToken != refreshToken // || 
+			// (process.env.ACCESS_SECRET && !jwt.verify(token, process.env.ACCESS_SECRET)) ||
+			// (process.env.REFRESH_SECRET && !jwt.verify(token, process.env.REFRESH_SECRET))
 		)) {
 		await clearUserTokens(user)
 		return null
