@@ -10,8 +10,8 @@ export const refreshCookieOptions = {
 	// sameSite: true, // only sent for requests to the same FQDN as the domain in the cookie
 }
 
-export const getTokenFromAuthorizationHeader = (authorization: string | undefined): string | undefined => {
-	if (!authorization) return
+export const getTokenFromAuthorizationHeader = (authorization: string | undefined): string => {
+	if (!authorization) return ''
 	
 	const [_, token] = authorization.split(' ')
 
@@ -26,7 +26,7 @@ export const getTokens = (): [string, string] => {
 	const token = jwt.sign(
 		{ randomId: uuidv4() }, 
 		process.env.ACCESS_SECRET, 
-		{ expiresIn: "5m" }
+		{ expiresIn: "30 days" }
 	)
 
 	const refreshToken = jwt.sign(
@@ -58,38 +58,64 @@ export const updateUserTokens = async (
 		},
 	})
 
-export const getUserByToken = async (token: string = '', refreshToken: string = ''): Promise<User | null> => {
-	if (token === '' && refreshToken === '') {
-		throw new Error('Either token or refresh token must be provided')
+export const clearUserTokens = async (
+	user: User
+) =>  await prismaClient.user.update({
+		where: {
+			id: user.id
+		},
+		data: {
+			token: null,
+			refreshToken: null,
+			oldTokens: [],
+			oldRefreshTokens: [],
+		},
+	})
+
+export const getUserByToken = async (token: string, refreshToken: string): Promise<User | null> => {
+
+	let user: User | null = await prismaClient.user.findFirst({
+		where: {
+			OR: [
+				{ token },
+				{ refreshToken }
+			]
+		}
+	})
+
+	if (user && (
+			user.token !== token || 
+			user.refreshToken != refreshToken || 
+			(process.env.ACCESS_SECRET && !jwt.verify(token, process.env.ACCESS_SECRET)) ||
+			(process.env.REFRESH_SECRET && !jwt.verify(token, process.env.REFRESH_SECRET))
+		)) {
+		await clearUserTokens(user)
+		return null
 	}
 
-	let user: User | null;
-	if (token) {	
-		user = await prismaClient.user.findFirst({ where : { token }})
-	} else {
-		user = await prismaClient.user.findFirst({ where : { refreshToken }})
+	if(!user) {
+		user = await prismaClient.user.findFirst({
+			where: {
+				OR: [
+					{ oldTokens: { has : token } },
+					{ oldRefreshTokens: { has: refreshToken} }
+				]
+			}
+		})
+
+		if (user) {
+			await clearUserTokens(user)
+			return null
+		}
 	}
+
 	return user
 }
 
-export const removeUserTokens = async (token: string = '', refreshToken: string = ''): Promise<void> => {
-	if (token === '' && refreshToken === '') {
-		throw new Error('Either token or refresh token must be provided')
-	}
-
+export const removeUserTokens = async (token: string, refreshToken: string): Promise<void> => {
 	let user: User | null = await getUserByToken(token, refreshToken);
 
 	if (user) {
-		await prismaClient.user.update({
-			where: {
-				id: user.id
-			},
-			data: {
-				token: null,
-				refreshToken: null,
-				oldTokens: [],
-				oldRefreshTokens: [],
-			},
-		})
+		await clearUserTokens(user)
 	}
 }
