@@ -2,12 +2,12 @@ import request from "supertest";
 import { describe, expect, test, afterEach, beforeEach } from '@jest/globals';
 import bcrypt from "bcrypt"
 import app from "../../server/app";
-import prismaClient from "../../server/client";
+import client from "../../server/client";
 import { User } from "@prisma/client";
 
 afterEach(async () => {
-	await prismaClient.user.deleteMany({})
-    await prismaClient.company.deleteMany({})
+	await client.user.deleteMany({})
+    await client.company.deleteMany({})
 })
 
 describe('Sign Up Tests', () => {
@@ -18,14 +18,14 @@ describe('Sign Up Tests', () => {
             "companyName": "MyComp"
         }).expect(201)
     
-        const company = prismaClient.company.findUnique({
+        const company = client.company.findUnique({
             where: {
                 name: "MyComp"
             }
         })
         expect(company).not.toBeNull()
         
-        const user: User | null = await prismaClient.user.findFirst({
+        const user: User | null = await client.user.findFirst({
             where: {
                 username: "Shea"
             }
@@ -38,7 +38,7 @@ describe('Sign Up Tests', () => {
     })
     
     test('Test signup unsuccessful when company already exists', async () => {
-        await prismaClient.company.create({
+        await client.company.create({
             data: { name: "MyComp" }
         })
     
@@ -63,11 +63,11 @@ describe('Sign Up Tests', () => {
 
 describe('Sign In Tests', () => {
     beforeEach(async () => {
-        const company = await prismaClient.company.create({
+        const company = await client.company.create({
             data: { name: "MyComp" }
         })
         const password = await bcrypt.hash("password", 10)
-        await prismaClient.user.create({
+        await client.user.create({
             data: {
                 username: "Shea",
                 password,
@@ -86,7 +86,7 @@ describe('Sign In Tests', () => {
 
         expect(response.body.isAdmin).toBeTruthy()
 
-        const user: User | null = await prismaClient.user.findFirst({
+        const user: User | null = await client.user.findFirst({
             where: {
                 AND: [
                     {
@@ -132,11 +132,11 @@ describe('Sign In Tests', () => {
 
 describe('Log Out Tests', () => {
     beforeEach(async () => {
-        const company = await prismaClient.company.create({
+        const company = await client.company.create({
             data: { name: "MyComp" }
         })
         const password = await bcrypt.hash("password", 10)
-        await prismaClient.user.create({
+        await client.user.create({
             data: {
                 username: "Shea",
                 password,
@@ -155,7 +155,7 @@ describe('Log Out Tests', () => {
             "token": "fakeToken"
         }).expect(200)
 
-        const user: User | null = await prismaClient.user.findFirst({
+        const user: User | null = await client.user.findFirst({
             where: {
                 AND: [
                     {

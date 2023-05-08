@@ -1,7 +1,7 @@
 import express, { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { User, Company } from "@prisma/client";
-import prismaClient from "../client";
+import client from "./client";
 import {
   getTokens,
   setNewUserTokens,
@@ -9,18 +9,18 @@ import {
   removeUserTokens,
   getTokenFromAuthorizationHeader,
   getUserByToken,
-} from "../tokens";
+} from "./tokens";
 
-const userRouter: Router = express.Router();
+const router: Router = express.Router();
 
-userRouter.post("/sign-up", async (req: Request, res: Response) => {
+router.post("/sign-up", async (req: Request, res: Response) => {
   const { username, password, companyName } = req.body;
 
   if (!username || !password || !companyName) {
     return res.status(400).send("Invalid request body");
   }
 
-  if (await prismaClient.company.findUnique({ where: { name: companyName } })) {
+  if (await client.company.findUnique({ where: { name: companyName } })) {
     return res
       .status(400)
       .send(`Company already exists with name ${companyName}`);
@@ -28,11 +28,11 @@ userRouter.post("/sign-up", async (req: Request, res: Response) => {
 
   const encryptedPassword = await bcrypt.hash(password, 10);
 
-  const company: Company = await prismaClient.company.create({
+  const company: Company = await client.company.create({
     data: { name: companyName },
   });
 
-  const user: User = await prismaClient.user.create({
+  const user: User = await client.user.create({
     data: {
       username,
       password: encryptedPassword,
@@ -50,14 +50,14 @@ userRouter.post("/sign-up", async (req: Request, res: Response) => {
   res.status(201).send({ token, isAdmin: user.isAdmin });
 });
 
-userRouter.post("/sign-in", async (req: Request, res: Response) => {
+router.post("/sign-in", async (req: Request, res: Response) => {
   const { username, password, companyName } = req.body;
 
   if (!username || !password || !companyName) {
     return res.status(400).send("Invalid request body");
   }
 
-  const user: User | null = await prismaClient.user.findFirst({
+  const user: User | null = await client.user.findFirst({
     where: {
       AND: [
         {
@@ -88,7 +88,7 @@ userRouter.post("/sign-in", async (req: Request, res: Response) => {
   res.status(200).send({ token, isAdmin: user.isAdmin });
 });
 
-userRouter.post("/logout", async (req: Request, res: Response) => {
+router.post("/logout", async (req: Request, res: Response) => {
   const token = getTokenFromAuthorizationHeader(req.headers.authorization);
 
   await removeUserTokens(token, req.cookies["refreshToken"]);
@@ -98,7 +98,7 @@ userRouter.post("/logout", async (req: Request, res: Response) => {
   res.status(200).send();
 });
 
-userRouter.post("/add-user", async (req: Request, res: Response) => {
+router.post("/add-user", async (req: Request, res: Response) => {
   const currentToken = getTokenFromAuthorizationHeader(req.headers.authorization);
 
   const user = await getUserByToken(currentToken, req.cookies["refreshToken"]);
@@ -116,7 +116,7 @@ userRouter.post("/add-user", async (req: Request, res: Response) => {
 
   const encryptedPassword = await bcrypt.hash(password, 10);
 
-  await prismaClient.user.create({
+  await client.user.create({
     data: {
       username,
       password: encryptedPassword,
@@ -134,7 +134,7 @@ userRouter.post("/add-user", async (req: Request, res: Response) => {
   res.status(201).send({ token });
 });
 
-userRouter.post("/add-message", async (req: Request, res: Response) => {
+router.post("/add-message", async (req: Request, res: Response) => {
   const currentToken = getTokenFromAuthorizationHeader(req.headers.authorization);
 
   const user = await getUserByToken(currentToken, req.cookies["refreshToken"]);
@@ -148,7 +148,7 @@ userRouter.post("/add-message", async (req: Request, res: Response) => {
 
   if (!content) return res.status(400).send("Invalid request body");
 
-  await prismaClient.message.create({
+  await client.message.create({
     data: {
       userId: user.id,
       content,
@@ -164,7 +164,7 @@ userRouter.post("/add-message", async (req: Request, res: Response) => {
   res.status(201).send({ token });
 });
 
-userRouter.get(
+router.get(
   "/get-users-and-messages",
   async (req: Request, res: Response) => {
     const currentToken = getTokenFromAuthorizationHeader(req.headers.authorization);
@@ -179,7 +179,7 @@ userRouter.get(
     const usersWithMessages: {
       username: string;
       Message: { content: string }[];
-    }[] = await prismaClient.user.findMany({
+    }[] = await client.user.findMany({
       where: {
         companyId: user.companyId,
         isAdmin: false,
@@ -208,4 +208,4 @@ userRouter.get(
   }
 );
 
-export default userRouter;
+export default router;
