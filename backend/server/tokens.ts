@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid"
 import jwt from "jsonwebtoken"
 import { User } from '@prisma/client'
-import prismaClient from "./client"
+import client from "./client"
 
 export const refreshCookieOptions = {
 	maxAge: 1000 * 60 * 60 * 24 * 30, //expires in a month
@@ -26,13 +26,13 @@ export const getTokens = (): [string, string] => {
 	const token = jwt.sign(
 		{ randomId: uuidv4() }, 
 		process.env.ACCESS_SECRET, 
-		{ expiresIn: "30 days" }
+		{ expiresIn: "30d" }
 	)
 
 	const refreshToken = jwt.sign(
 		{ randomId: uuidv4() },
 		process.env.REFRESH_SECRET,
-		{ expiresIn: "30 days" }
+		{ expiresIn: "30d" }
 	)
 
 	return [token, refreshToken]
@@ -42,7 +42,7 @@ export const setNewUserTokens = async (
 	user: User,
 	token: string,
 	refreshToken: string
-) =>  await prismaClient.user.update({
+) =>  await client.user.update({
 		where: {
 			id: user.id
 		},
@@ -60,7 +60,7 @@ export const setNewUserTokens = async (
 
 export const clearUserTokens = async (
 	user: User
-) =>  await prismaClient.user.update({
+) =>  await client.user.update({
 		where: {
 			id: user.id
 		},
@@ -74,7 +74,7 @@ export const clearUserTokens = async (
 
 export const getUserByToken = async (token: string, refreshToken: string): Promise<User | null> => {
 
-	let user: User | null = await prismaClient.user.findFirst({
+	let user: User | null = await client.user.findFirst({
 		where: {
 			OR: [
 				{ token },
@@ -83,18 +83,13 @@ export const getUserByToken = async (token: string, refreshToken: string): Promi
 		}
 	})
 
-	if (user && (
-			user.token !== token || 
-			user.refreshToken != refreshToken // || 
-			// (process.env.ACCESS_SECRET && !jwt.verify(token, process.env.ACCESS_SECRET)) ||
-			// (process.env.REFRESH_SECRET && !jwt.verify(token, process.env.REFRESH_SECRET))
-		)) {
+	if (user && (user.token !== token || user.refreshToken !== refreshToken)) {
 		await clearUserTokens(user)
 		return null
 	}
 
 	if(!user) {
-		user = await prismaClient.user.findFirst({
+		user = await client.user.findFirst({
 			where: {
 				OR: [
 					{ oldTokens: { has : token } },
@@ -104,6 +99,18 @@ export const getUserByToken = async (token: string, refreshToken: string): Promi
 		})
 
 		if (user) {
+			await clearUserTokens(user)
+			return null
+		}
+	}
+
+	if(user) {
+		try {
+			// Check that the tokens are still valid
+			process.env.ACCESS_SECRET && jwt.verify(token, process.env.ACCESS_SECRET)
+			process.env.REFRESH_SECRET && jwt.verify(refreshToken, process.env.REFRESH_SECRET)
+		} catch (e) {
+			// If here that means the tokens are no longer valid
 			await clearUserTokens(user)
 			return null
 		}
