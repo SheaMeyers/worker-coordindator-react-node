@@ -41,11 +41,11 @@ router.post("/sign-up", async (req: Request, res: Response) => {
     },
   });
 
-  const [token, refreshToken] = getTokens();
+  const [token, cookieToken] = getTokens();
 
-  await setNewUserTokens(user, token, refreshToken);
+  await setNewUserTokens(user, token, cookieToken);
 
-  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+  res.cookie("cookieToken", cookieToken, refreshCookieOptions);
 
   res.status(201).send({ token, isAdmin: user.isAdmin });
 });
@@ -79,11 +79,11 @@ router.post("/sign-in", async (req: Request, res: Response) => {
   if (!isValidPassword)
     return res.status(401).send("Invalid company name, username or password");
 
-  const [token, refreshToken] = getTokens();
+  const [token, cookieToken] = getTokens();
 
-  await setNewUserTokens(user, token, refreshToken);
+  await setNewUserTokens(user, token, cookieToken);
 
-  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+  res.cookie("cookieToken", cookieToken, refreshCookieOptions);
 
   res.status(200).send({ token, isAdmin: user.isAdmin });
 });
@@ -91,9 +91,9 @@ router.post("/sign-in", async (req: Request, res: Response) => {
 router.post("/logout", async (req: Request, res: Response) => {
   const token = getTokenFromAuthorizationHeader(req.headers.authorization);
 
-  await removeUserTokens(token, req.cookies["refreshToken"]);
+  await removeUserTokens(token, req.cookies["cookieToken"]);
 
-  res.clearCookie("refreshToken");
+  res.clearCookie("cookieToken");
 
   res.status(200).send();
 });
@@ -101,10 +101,10 @@ router.post("/logout", async (req: Request, res: Response) => {
 router.post("/add-user", async (req: Request, res: Response) => {
   const currentToken = getTokenFromAuthorizationHeader(req.headers.authorization);
 
-  const user = await getUserByToken(currentToken, req.cookies["refreshToken"]);
+  const user = await getUserByToken(currentToken, req.cookies["cookieToken"]);
 
   if (!user || !user.isAdmin) {
-    res.clearCookie("refreshToken");
+    res.clearCookie("cookieToken");
     return res.status(403).send();
   }
 
@@ -125,11 +125,11 @@ router.post("/add-user", async (req: Request, res: Response) => {
     },
   });
 
-  const [token, refreshToken] = getTokens();
+  const [token, cookieToken] = getTokens();
 
-  await setNewUserTokens(user, token, refreshToken);
+  await setNewUserTokens(user, token, cookieToken);
 
-  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+  res.cookie("cookieToken", cookieToken, refreshCookieOptions);
 
   res.status(201).send({ token });
 });
@@ -137,10 +137,10 @@ router.post("/add-user", async (req: Request, res: Response) => {
 router.post("/add-message", async (req: Request, res: Response) => {
   const currentToken = getTokenFromAuthorizationHeader(req.headers.authorization);
 
-  const user = await getUserByToken(currentToken, req.cookies["refreshToken"]);
+  const user = await getUserByToken(currentToken, req.cookies["cookieToken"]);
 
   if (!user || user.isAdmin) {
-    res.clearCookie("refreshToken");
+    res.clearCookie("cookieToken");
     return res.status(403).send();
   }
 
@@ -155,11 +155,11 @@ router.post("/add-message", async (req: Request, res: Response) => {
     },
   });
 
-  const [token, refreshToken] = getTokens();
+  const [token, cookieToken] = getTokens();
 
-  await setNewUserTokens(user, token, refreshToken);
+  await setNewUserTokens(user, token, cookieToken);
 
-  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+  res.cookie("cookieToken", cookieToken, refreshCookieOptions);
 
   res.status(201).send({ token });
 });
@@ -169,10 +169,10 @@ router.get(
   async (req: Request, res: Response) => {
     const currentToken = getTokenFromAuthorizationHeader(req.headers.authorization);
 
-    const user = await getUserByToken(currentToken, req.cookies["refreshToken"]);
+    const user = await getUserByToken(currentToken, req.cookies["cookieToken"]);
 
     if (!user || !user.isAdmin) {
-      res.clearCookie("refreshToken");
+      res.clearCookie("cookieToken");
       return res.status(403).send();
     }
 
@@ -198,11 +198,11 @@ router.get(
       },
     });
 
-    const [token, refreshToken] = getTokens();
+    const [token, cookieToken] = getTokens();
 
-    await setNewUserTokens(user, token, refreshToken);
+    await setNewUserTokens(user, token, cookieToken);
 
-    res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+    res.cookie("cookieToken", cookieToken, refreshCookieOptions);
 
     res.status(200).send({ token, usersWithMessages });
   }

@@ -29,30 +29,30 @@ export const getTokens = (): [string, string] => {
 		{ expiresIn: "30d" }
 	)
 
-	const refreshToken = jwt.sign(
+	const cookieToken = jwt.sign(
 		{ randomId: uuidv4() },
 		process.env.REFRESH_SECRET,
 		{ expiresIn: "30d" }
 	)
 
-	return [token, refreshToken]
+	return [token, cookieToken]
 }
 
 export const setNewUserTokens = async (
 	user: User,
 	token: string,
-	refreshToken: string
+	cookieToken: string
 ) =>  await client.user.update({
 		where: {
 			id: user.id
 		},
 		data: {
 			token,
-			refreshToken,
+			cookieToken,
 			oldTokens: [user.token || '', ...user.oldTokens]
 				.filter((e) => e)
 				.slice(0, 20),
-			oldRefreshTokens: [user.refreshToken || '', ...user.oldRefreshTokens]
+			oldCookieTokens: [user.cookieToken || '', ...user.oldCookieTokens]
 				.filter((e) => e)
 				.slice(0, 20),
 		},
@@ -66,24 +66,24 @@ export const clearUserTokens = async (
 		},
 		data: {
 			token: null,
-			refreshToken: null,
+			cookieToken: null,
 			oldTokens: [],
-			oldRefreshTokens: [],
+			oldCookieTokens: [],
 		},
 	})
 
-export const getUserByToken = async (token: string, refreshToken: string): Promise<User | null> => {
+export const getUserByToken = async (token: string, cookieToken: string): Promise<User | null> => {
 
 	let user: User | null = await client.user.findFirst({
 		where: {
 			OR: [
 				{ token },
-				{ refreshToken }
+				{ cookieToken }
 			]
 		}
 	})
 
-	if (user && (user.token !== token || user.refreshToken !== refreshToken)) {
+	if (user && (user.token !== token || user.cookieToken !== cookieToken)) {
 		await clearUserTokens(user)
 		return null
 	}
@@ -93,7 +93,7 @@ export const getUserByToken = async (token: string, refreshToken: string): Promi
 			where: {
 				OR: [
 					{ oldTokens: { has : token } },
-					{ oldRefreshTokens: { has: refreshToken} }
+					{ oldCookieTokens: { has: cookieToken} }
 				]
 			}
 		})
@@ -108,7 +108,7 @@ export const getUserByToken = async (token: string, refreshToken: string): Promi
 		try {
 			// Check that the tokens are still valid
 			process.env.ACCESS_SECRET && jwt.verify(token, process.env.ACCESS_SECRET)
-			process.env.REFRESH_SECRET && jwt.verify(refreshToken, process.env.REFRESH_SECRET)
+			process.env.REFRESH_SECRET && jwt.verify(cookieToken, process.env.REFRESH_SECRET)
 		} catch (e) {
 			// If here that means the tokens are no longer valid
 			await clearUserTokens(user)
@@ -119,8 +119,8 @@ export const getUserByToken = async (token: string, refreshToken: string): Promi
 	return user
 }
 
-export const removeUserTokens = async (token: string, refreshToken: string): Promise<void> => {
-	let user: User | null = await getUserByToken(token, refreshToken);
+export const removeUserTokens = async (token: string, cookieToken: string): Promise<void> => {
+	let user: User | null = await getUserByToken(token, cookieToken);
 
 	if (user) {
 		await clearUserTokens(user)

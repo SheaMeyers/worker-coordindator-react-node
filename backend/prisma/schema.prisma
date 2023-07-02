@@ -26,8 +26,8 @@ model User {
   isAdmin          Boolean
   token            String?   @unique
   oldTokens        String[]
-  refreshToken     String?   @unique
-  oldRefreshTokens String[]
+  cookieToken     String?   @unique
+  oldCookieTokens String[]
   Message          Message[]
 }
 

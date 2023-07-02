@@ -143,9 +143,9 @@ describe('Log Out Tests', () => {
                 companyId: company.id,
                 isAdmin: true,
                 token: 'fakeToken',
-                refreshToken: 'fakeRefreshToken',
+                cookieToken: 'fakeRefreshToken',
                 oldTokens: ['oldFakeToken'],
-                oldRefreshTokens: ['oldFakeRefreshToken'],
+                oldCookieTokens: ['oldFakeRefreshToken'],
             }
         })
     })
@@ -172,8 +172,8 @@ describe('Log Out Tests', () => {
 
         expect(user).not.toBeNull()
         expect(user?.token).toBe(null)
-        expect(user?.refreshToken).toBe(null)
+        expect(user?.cookieToken).toBe(null)
         expect(user?.oldTokens).toStrictEqual([])
-        expect(user?.oldRefreshTokens).toStrictEqual([])
+        expect(user?.oldCookieTokens).toStrictEqual([])
     })
 })
