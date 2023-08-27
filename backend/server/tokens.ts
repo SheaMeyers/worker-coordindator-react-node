@@ -4,10 +4,10 @@ import { User } from '@prisma/client'
 import client from "./client"
 
 export const refreshCookieOptions = {
-	maxAge: 1000 * 60 * 60 * 24 * 30, //expires in a month
-	// httpOnly: true, // cookie is only accessible by the server
-	// secure: process.env.NODE_ENV === 'prod', // only transferred over https
-	// sameSite: true, // only sent for requests to the same FQDN as the domain in the cookie
+	maxAge: 1000 * 60 * 60 * 24 * 30, // one month
+	httpOnly: process.env.NODE_ENV === 'prod', // cookie is only accessible by the server
+	secure: process.env.NODE_ENV === 'prod', // only transferred over https
+	sameSite: true, // only sent for requests to the same FQDN as the domain in the cookie
 }
 
 export const getTokenFromAuthorizationHeader = (authorization: string | undefined): string => {
