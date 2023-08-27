@@ -19,3 +19,7 @@ code {
   color: black !important;
   font-weight: bold !important;
 }
+
+h1 {
+  text-align: center;
+}

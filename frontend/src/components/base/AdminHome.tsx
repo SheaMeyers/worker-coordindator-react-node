@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import AddWorkerModal from "../AddWorkerModal";
 import Button from "@mui/material/Button";
-import LogoutButton from "./LogoutButton";
-import "../../styles/HomePage.css";
-import { UsersWithMessages } from "../../interfaces";
-import { getUsersWithMessages } from "../../api";
 import {
   Accordion,
   AccordionDetails,
@@ -13,6 +8,12 @@ import {
   CardContent,
   Typography,
 } from "@mui/material";
+import LogoutButton from "./LogoutButton";
+import AddWorkerModal from "../AddWorkerModal";
+import { UsersWithMessages } from "../../interfaces";
+import { getUsersWithMessages } from "../../api";
+import "../../styles/HomePage.css";
+
 
 const AdminHome = () => {
   const [usersWithMessages, setUsersWithMessages] = useState<UsersWithMessages>(
@@ -31,8 +32,10 @@ const AdminHome = () => {
 
   return (
     <>
-      <LogoutButton />
-      <Button onClick={(_) => setIsOpen(true)}>Add Worker</Button>
+      <div className='ButtonContainer'>
+        <Button onClick={(_) => setIsOpen(true)}>Add Worker</Button>
+        <LogoutButton />
+      </div>
       <h1>Admin Homepage</h1>
       {usersWithMessages.map((userWithMessages) => (
         <Accordion>
@@ -45,6 +48,8 @@ const AdminHome = () => {
                 <CardContent>{message.content}</CardContent>
               </Card>
             ))}
+            {userWithMessages.Message.length === 0 &&
+              <span>(No Messages)</span>}
           </AccordionDetails>
         </Accordion>
       ))}

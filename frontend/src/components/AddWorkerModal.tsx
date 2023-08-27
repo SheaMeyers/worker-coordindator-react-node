@@ -4,11 +4,12 @@ import Checkbox from '@mui/material/Checkbox'
 import Dialog from "@mui/material/Dialog"
 import DialogActions from "@mui/material/DialogActions"
 import DialogContent from "@mui/material/DialogContent"
-import DialogContentText from "@mui/material/DialogContentText"
 import DialogTitle from "@mui/material/DialogTitle"
 import FormControlLabel from '@mui/material/FormControlLabel'
 import TextField from "@mui/material/TextField"
 import { addUser } from "../api"
+import "../styles/AddWorkerModal.css";
+
 
 interface AddWorkerModalProps {
     isOpen: boolean
@@ -27,9 +28,6 @@ const AddWorkerModal = (props: AddWorkerModalProps) => {
         <Dialog open={isOpen} onClose={() => handleClose()}>
 			<DialogTitle>Add User</DialogTitle>
 			<DialogContent>
-				<DialogContentText>
-					Add User
-				</DialogContentText>
 				<TextField
 					required={true}
 					margin="dense"
@@ -62,7 +60,6 @@ const AddWorkerModal = (props: AddWorkerModalProps) => {
 				{loading && <p>Adding worker...</p>}
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={() => props.handleClose()}>Cancel</Button>
 				<Button
 					disabled={loading || !username || !password}
 					onClick={async () => {
@@ -74,6 +71,7 @@ const AddWorkerModal = (props: AddWorkerModalProps) => {
 				>
 					Add User
 				</Button>
+				<Button onClick={() => props.handleClose()}>Cancel</Button>
 			</DialogActions>
 		</Dialog>
     )

@@ -7,3 +7,9 @@
   display: flex;
   justify-content: space-around;
 }
+
+.MuiAccordion-root {
+  margin: 10px !important;
+  border-radius: 5px !important;
+}
+
