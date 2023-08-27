@@ -20,3 +20,17 @@ After signing up, the admin can add workers and other admins.  Those workers the
 2. In the top left you will see an `Add Worker` button which you use to add your workers.
 3. After adding your workers they can sign in and add their messages
 4. When your workers add messages you will see them in your home page.
+
+## Unit Tests
+
+The project has both frontend and backend unit tests
+
+### Frontend
+
+Run `npm run test-frontend` which will run the frontend unit tests
+
+### Backend
+
+Create a new database table that the tests can use, go into `backend/prisma` and update the `.env` to use this table, and re-run `npm run init-db` to setup the database table the tests will use.  
+
+Afterwards you can run `npm run test-backend` to run the backend unit tests
