@@ -13,3 +13,11 @@
   border-radius: 5px !important;
 }
 
+.MuiCard-root {
+  margin: 10px;
+}
+
+.MuiCardContent-root {
+  display: flex;
+  flex-direction: column;
+}

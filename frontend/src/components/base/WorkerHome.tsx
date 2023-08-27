@@ -12,7 +12,9 @@ const WorkerHome = () => {
 
   return (
     <>
-      <LogoutButton />
+      <div className='ButtonContainer'>
+        <LogoutButton />
+      </div>
       <h1>Worker Homepage</h1>
       <Card>
         <CardContent>
