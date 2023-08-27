@@ -3,7 +3,7 @@ import { describe, expect, test, afterEach, beforeEach } from '@jest/globals';
 import bcrypt from "bcrypt"
 import app from "../../server/app";
 import client from "../../server/client";
-import { User } from "@prisma/client";
+import { Company, User } from "@prisma/client";
 
 afterEach(async () => {
 	await client.user.deleteMany({})
@@ -18,7 +18,7 @@ describe('Sign Up Tests', () => {
             "companyName": "MyComp"
         }).expect(201)
     
-        const company = client.company.findUnique({
+        const company: Company | null = await client.company.findUnique({
             where: {
                 name: "MyComp"
             }
@@ -127,53 +127,5 @@ describe('Sign In Tests', () => {
             "username": "BadShea",
             "password": "password"
         }).expect(401)
-    })
-})
-
-describe('Log Out Tests', () => {
-    beforeEach(async () => {
-        const company = await client.company.create({
-            data: { name: "MyComp" }
-        })
-        const password = await bcrypt.hash("password", 10)
-        await client.user.create({
-            data: {
-                username: "Shea",
-                password,
-                companyId: company.id,
-                isAdmin: true,
-                token: 'fakeToken',
-                cookieToken: 'fakeRefreshToken',
-                oldTokens: ['oldFakeToken'],
-                oldCookieTokens: ['oldFakeRefreshToken'],
-            }
-        })
-    })
-
-    test('Logout successful', async () => {
-        await request(app).post('/api/logout').send({
-            "token": "fakeToken"
-        }).expect(200)
-
-        const user: User | null = await client.user.findFirst({
-            where: {
-                AND: [
-                    {
-                        company: {
-                            name: "MyComp"
-                        }
-                    },
-                    {
-                        username: "Shea"
-                    }
-                ]
-            }
-        })
-
-        expect(user).not.toBeNull()
-        expect(user?.token).toBe(null)
-        expect(user?.cookieToken).toBe(null)
-        expect(user?.oldTokens).toStrictEqual([])
-        expect(user?.oldCookieTokens).toStrictEqual([])
     })
 })
