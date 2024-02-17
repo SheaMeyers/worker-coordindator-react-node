@@ -4,8 +4,10 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+      "init-db": "cd backend; prisma generate; prisma migrate dev",
+      "install-dependencies": "cd backend; npm ci; cd ../frontend; npm ci",
       "app": "cd frontend; npm run build; cd ../backend; npm run build; npm run server",
-      "init-db": "cd backend; prisma migrate dev",
+      "docker-app": "npm run init-db; npm run app",
       "test-frontend": "cd frontend; npm run test",
       "test-backend": "cd backend; npm run test"
     },

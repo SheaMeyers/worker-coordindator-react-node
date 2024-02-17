@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+
+  web:
+    build: .
+    ports:
+      - "4000:4000"
+    depends_on:
+      - wcdb
+    networks:
+      - workercoordinatorreactnode
+
+  wcdb:
+    image: postgres:16-bullseye
+    restart: always
+    environment:
+      - POSTGRES_DB=workercoordinatorreactnode
+      - POSTGRES_USER=workercoordinatorreactnode
+      - POSTGRES_PASSWORD=workercoordinatorreactnode
+    ports:
+      - '5432:5432'
+    volumes: 
+      - wcdb:/var/lib/postgresql/data
+    networks:
+      - workercoordinatorreactnode
+
+volumes:
+  wcdb:
+    driver: local
+
+networks:
+  workercoordinatorreactnode:
+    driver: bridge

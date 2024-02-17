@@ -14,6 +14,10 @@ After signing up, the admin can add workers and other admins.  Those workers the
 3. Run `npm run init-db` to setup the initial database
 4. Run `npm run app` to run the app and after building and running you should see the message `Worker coordinator listening on port 4000`.  If you see this you can then go to `localhost:4000` to see the app
 
+## Running with docker
+
+This project is also configured to run using Docker.  To do so simply run `docker compose up`.
+
 ## Usage
 
 1. Click the `Sign Up` button on the top right to sign up.  After doing so you will be logged in.
